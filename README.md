@@ -32,7 +32,7 @@ document.writeln(bike.getName()); //return '自行车'
 document.writeln(bike.getDesc()); //return '这是一辆自行车'
 
 //继承多个父类
-function Drive(){}
+function Drive(name){this.name=name;}
 Drive.prototype.start=function(){
     this.status='driving';
 }
@@ -43,7 +43,7 @@ Drive.prototype.stop=function(){
 var Bus=createClass(function(name,color){
         this._super(name);
         this.color=color;   
-    },Drive,Bike,{
+    },Drive,Bike,{			//继承Drive Bike两个类
         color:'black',
         getColor:function(){
             return this.color;
