@@ -13,7 +13,7 @@
  *                              _super 调用该方法只会执行第一个出现的类的构造函数，即默认父类的构造函数
  *
  * @return {Class} 返回类构造函数，每个返回的类原型中都内置了几个方法：
- *                  @property _self 原始构造函数
+ *                  @method _self 原始构造函数
  *                  @method _super 调用父类构造函数，以继承其自身属性
  *                  @method isInstanceof 检测是否是某个类的实例，单继承时用原生的 instanceof 或者本方法都可以，
  *                                       多继承情况下，必须用本方法才可以正确检测所有父类
