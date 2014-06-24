@@ -4,6 +4,7 @@ createClass
 > 创建类、创建并集成多个父类的方法
 
 ## DEMO 示例
+
 ```javascript
 var Car=createClass(function(name){
        this.name=name;
