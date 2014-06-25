@@ -55,7 +55,7 @@
     
    ROOT[name]=function(){
         var struct=arguments[0],
-            args=[].slice.call(arguments,(isft(struct)?(struct=noop,0):1)),
+            args=[].slice.call(arguments,(isft(struct)?1:(struct=noop,0))),
             parents=map(args,function(arg){
                 if(isft(arg)){
                     return arg;
