@@ -51,64 +51,71 @@
  *
  */
 
-function createClass(){
-	var struct=arguments[0],
-        args=[].slice.call(arguments,(typeof struct!='function'?(struct=new Function,0):1)),
-		parents=map(args,function(arg){
-			if(typeof arg=='function')
-				return arg;
-		});
-
-	var ret={
-        _self:struct,
-        extend:function(){
-            var self=this;
-            extend.apply(null,[this].concat(map(arguments,function(arg){
-                typeof arg=='function' && !self.isInstanceof(arg) && parents.push(arg);
-                return getObj(arg);
-            }),ret));
-            return this;
-        },
-        isInstanceof:function(Class){
-            var self=this,
-                isto;
-            return (this instanceof Class) || (function(){
-                for(var i=0,j=parents.length;i<j;i++){
-                    isto=parents[i].prototype.isInstanceof;
-                    if(parents[i]===Class || isto && isto.call(self,Class)){
-                        return true;
-                    }
+!function(ROOT,name,undefined){
+    
+   ROOT[name]=function(){
+        var struct=arguments[0],
+            args=[].slice.call(arguments,(isft(struct)?(struct=noop,0):1)),
+            parents=map(args,function(arg){
+                if(isft(arg)){
+                    return arg;
                 }
-                return false;
-            })();
+            });
+
+        var ret={
+            _self:struct,
+            extend:function(){
+                var self=this;
+                extend.apply(null,[this].concat(map(arguments,function(arg){
+                    isft(arg) && !self.isInstanceof(arg) && parents.push(arg);
+                    return getObj(arg);
+                }),ret));
+                return this;
+            },
+            isInstanceof:function(Class){
+                var self=this,
+                    isto;
+                return (this instanceof Class) || (function(){
+                    for(var i=0,j=parents.length;i<j;i++){
+                        isto=parents[i].prototype.isInstanceof;
+                        if(parents[i]===Class || isto && isto.call(self,Class)){
+                            return true;
+                        }
+                    }
+                    return false;
+                })();
+            }
         }
-    }
 
-	if(parents.length){
-		ret._super=function(){
-			(parents[0].prototype._self||parents[0]).apply(this,arguments);
-		}
-	}
+        if(parents.length){
+            ret._super=function(){
+                (parents[0].prototype._self||parents[0]).apply(this,arguments);
+            }
+        }
 
-	proxy.prototype=construct.fn=construct.prototype=extend.apply(null,map([{constructor:construct}].concat(args,ret).sort(sortFunc),getObj));
+        proxy.prototype=construct.fn=construct.prototype=extend.apply(null,map([{constructor:construct}].concat(args,ret).sort(sortFunc),getObj));
 
-    construct.extend=function(){
-        ret.extend.apply(this.fn,arguments);
+        construct.extend=function(){
+            ret.extend.apply(this.fn,arguments);
+            return construct;
+        }
+
         return construct;
-    }
 
-	return construct;
+        function proxy(args){
+            struct.apply(this,args);
+        }
+        function construct(){
+            return new proxy(arguments);
+        }
+        
+    }
 
     /**
      * 定义一些方法
      */ 
-	function proxy(args){
-		struct.apply(this,args);
-	}
-	function construct(){
-		return new proxy(arguments);
-	}
-	function map(arr,func){
+
+    function map(arr,func){
         for(var i=0,j=arr.length,ret=[],n;i<j;i++){
 			if(typeof (n=func(arr[i],i,arr)) !== 'undefined')
 				ret.push(n);
@@ -156,6 +163,15 @@ function createClass(){
         return af==bf?0:af?-1:1;
     }
     function getObj(arg){
-        return typeof arg=='function'?new arg:arg;
+        if(isft(arg)){
+            noop.prototype=arg.prototype;
+            return new noop;
+        }
+        return arg;
     }
-}
+    function isft(n){
+        return typeof n=='function';
+    }
+    function noop(){}
+
+}(window,'createClass');
