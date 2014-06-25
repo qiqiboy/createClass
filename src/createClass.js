@@ -7,17 +7,17 @@
  * 实现原理是通过对象冒充，将实际的构造函数struct绑定到proxy实例中执行，以继承struct的属性和方法。
  * 支持继承，创建类时支持继承父类，支持一次继承多个父类。
  *
- * @param {Function} struct 构造体函数
- * @param [{Object|Class},...] 要继承的类或者原型对象，不限制个数，多个原型对象可以分开写。
- *                             出现的第一个类（函数）将作为默认父类，其余类将会复制其属性和方法到原型，以实现多继承。
- *                              _super 调用该方法只会执行第一个出现的类的构造函数，即默认父类的构造函数
+ * @params [{Function|Class|Object},...]
+ *          构造函数或要继承的类或者原型对象，不限制个数，多个原型对象可以分开写。
+ *          第一个参数如果是个函数，则当做默认构造函数。从第二个参数开始，出现的第一个类（函数）将则作为默认父类，其余类将会复制其属性和方法到原型，以实现多继承。
+ *          _super 调用该方法只会执行第一个出现的类的构造函数，即默认父类的构造函数
  *
  * @return {Class} 返回类构造函数，每个返回的类原型中都内置了几个方法：
- *                  @method _self 原始构造函数
- *                  @method _super 调用父类构造函数，以继承其自身属性
- *                  @method extend 扩展类方法或者实例方法，继承类等
- *                  @method isInstanceof 检测是否是某个类的实例，单继承时用原生的 instanceof 或者本方法都可以，
- *                                       多继承情况下，必须用本方法才可以正确检测所有父类
+ *          @method _self 原始构造函数
+ *          @method _super 调用父类构造函数，以继承其自身属性
+ *          @method extend 扩展类方法或者实例方法，继承类等
+ *          @method isInstanceof 检测是否是某个类的实例，单继承时用原生的 instanceof 或者本方法都可以，
+ *                               多继承情况下，必须用本方法才可以正确检测所有父类
  *
  * @example
  *      var Car=createClass(function(name){
@@ -51,13 +51,14 @@
  *
  */
 
-function createClass(struct){
-	var args=[].slice.call(arguments,(typeof struct!='function'?(struct=new Function,0):1)),
+function createClass(){
+	var struct=arguments[0],
+        args=[].slice.call(arguments,(typeof struct!='function'?(struct=new Function,0):1)),
 		parents=map(args,function(arg){
 			if(typeof arg=='function')
 				return arg;
 		});
-	
+
 	var ret={
         _self:struct,
         extend:function(){
