@@ -61,14 +61,9 @@ function createClass(struct){
 	var ret={
         _self:struct,
         extend:function(){
+            var self=this;
             extend.apply(null,[this].concat(map(arguments,function(arg){
-                typeof arg=='function' && ([].indexOf||function(){
-                    for(var i=0,j=this.length;i<j;i++){
-                        if(i in this && this[i]==arg)
-                            return i;
-                    }
-                    return -1;
-                }).call(parents,arg)<0 && parents.push(arg);
+                typeof arg=='function' && !self.isInstanceof(arg) && parents.push(arg);
                 return getObj(arg);
             }),ret));
             return this;
