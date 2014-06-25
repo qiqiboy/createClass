@@ -59,6 +59,22 @@ document.writeln(bus.getDesc()); //这是一辆红色的汽车
 bus.start();
 document.writeln(bus.status);
 
+
+//扩展类或实例方法
+Bike.extend({setColor:function(color){this.color=color;document.writeln(color);}}); //该例子添加了 setColor 方法到 Bike 类的原型。也可以使用 Bike.fn._extend({});
+bike.extend({setName:function(name){this.name=name;document.writeln(name);}}); //该例子直接对bike对象添加了 setName 方法
+
+bike.setColor('white'); //white
+bike.setName('我的自行车'); //我的自行车
+new Bike('又一辆自行车').setColor('white'); //white 因为setColor是绑定到Bike的原型中的，所以所有基于Bike派生的实例都具有这个方法，下面的setName则不是，会报错
+try{new Bike('又一辆自行车').setName('我的自行车');}catch(e){document.writeln(e);} //Uncaught TypeError: undefined is not a function.  
+
+
+//继承类
+NewClass=createClass();
+Bike.extend(NewClass); //继承NewClass类
+document.writeln(bike.isInstanceof(NewClass)) //true
+
 document.writeln(car1 instanceof Car) //true
 document.writeln(bike instanceof Bike) //true
 document.writeln(bike instanceof Car) //true

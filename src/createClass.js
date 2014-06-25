@@ -15,6 +15,7 @@
  * @return {Class} 返回类构造函数，每个返回的类原型中都内置了几个方法：
  *                  @method _self 原始构造函数
  *                  @method _super 调用父类构造函数，以继承其自身属性
+ *                  @method extend 扩展类方法或者实例方法，继承类等
  *                  @method isInstanceof 检测是否是某个类的实例，单继承时用原生的 instanceof 或者本方法都可以，
  *                                       多继承情况下，必须用本方法才可以正确检测所有父类
  *
@@ -51,26 +52,41 @@
  */
 
 function createClass(struct){
-	var args=[].slice.call(arguments,1),
+	var args=[].slice.call(arguments,(typeof struct!='function'?(struct=new Function,0):1)),
 		parents=map(args,function(arg){
 			if(typeof arg=='function')
 				return arg;
 		});
-
-	struct=struct||new Function;
-
-	var ret={_self:struct,isInstanceof:function(Class){
-        var self=this,
-            isto=Class.prototype.isInstanceof;
-        return (this instanceof Class) || (function(){
-            for(var i=0,j=parents.length;i<j;i++){
-                if(parents[i]===Class || isto && isto.call(self,parents[i])){
-                    return true;
+	
+	var ret={
+        _self:struct,
+        extend:function(){
+            extend.apply(null,[this].concat(map(arguments,function(arg){
+                typeof arg=='function' && ([].indexOf||function(){
+                    for(var i=0,j=this.length;i<j;i++){
+                        if(i in this && this[i]==arg)
+                            return i;
+                    }
+                    return -1;
+                }).call(parents,arg)<0 && parents.push(arg);
+                return getObj(arg);
+            }),ret));
+            return this;
+        },
+        isInstanceof:function(Class){
+            var self=this,
+                isto;
+            return (this instanceof Class) || (function(){
+                for(var i=0,j=parents.length;i<j;i++){
+                    isto=parents[i].prototype.isInstanceof;
+                    if(parents[i]===Class || isto && isto.call(self,Class)){
+                        return true;
+                    }
                 }
-            }
-            return false;
-        })();
-    }};
+                return false;
+            })();
+        }
+    }
 
 	if(parents.length){
 		ret._super=function(){
@@ -78,10 +94,18 @@ function createClass(struct){
 		}
 	}
 
-	proxy.prototype=construct.prototype=extend.apply(null,map([{constructor:construct}].concat(args,ret).sort(sortFunc),function(arg,i){
-		return typeof arg=='function'?new arg:arg;
-	}));
+	proxy.prototype=construct.fn=construct.prototype=extend.apply(null,map([{constructor:construct}].concat(args,ret).sort(sortFunc),getObj));
 
+    construct.extend=function(){
+        ret.extend.apply(this.fn,arguments);
+        return construct;
+    }
+
+	return construct;
+
+    /**
+     * 定义一些方法
+     */ 
 	function proxy(args){
 		struct.apply(this,args);
 	}
@@ -135,6 +159,7 @@ function createClass(struct){
             bf=typeof b=='function';
         return af==bf?0:af?-1:1;
     }
-
-	return construct;
+    function getObj(arg){
+        return typeof arg=='function'?new arg:arg;
+    }
 }
