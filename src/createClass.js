@@ -68,7 +68,7 @@
                 var self=this;
                 extend.apply(null,[this].concat(map(arguments,function(arg){
                     isft(arg) && !self.isInstanceof(arg) && parents.push(arg);
-                    return getObj(arg);
+                    return getObj(arg,construct.fn.constructor,ret);
                 }),ret));
                 return this;
             },
@@ -117,7 +117,7 @@
 
     function map(arr,func){
         for(var i=0,j=arr.length,ret=[],n;i<j;i++){
-			if(typeof (n=func(arr[i],i,arr)) !== 'undefined')
+			if(typeof (n=func(arr[i])) !== 'undefined')
 				ret.push(n);
 		}
 		return ret;
@@ -162,10 +162,10 @@
             bf=typeof b=='function';
         return af==bf?0:af?-1:1;
     }
-    function getObj(arg){
+    function getObj(arg,constructor,ret){
         if(isft(arg)){
             noop.prototype=arg.prototype;
-            return new noop;
+            return extend(new noop,{constructor:constructor},ret);
         }
         return arg;
     }
