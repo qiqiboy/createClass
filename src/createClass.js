@@ -56,21 +56,20 @@
    ROOT[name]=function(){
         var struct=arguments[0],
             args=[].slice.call(arguments,(isft(struct)?1:(struct=noop,0))),
-            parents=map(args,function(arg){
-                if(isft(arg)){
-                    return arg;
-                }
-            });
+            parents=[];
 
         var ret={
             _self:struct,
+            _super:function(){
+                parents[0] && (parents[0].prototype._self||parents[0]).apply(this,arguments);
+            },
             extend:function(){
-                var self=this;
-                extend.apply(null,[this].concat(map(arguments,function(arg){
+                var self=this,
+                    base=this===ret?[]:[this];
+                return extend.apply(null,base.concat(map([{constructor:construct}].concat([].slice.call(arguments,0),ret).sort(sortFunc),function(arg){
                     isft(arg) && !self.isInstanceof(arg) && parents.push(arg);
-                    return getObj(arg,construct.fn.constructor,ret);
-                }),ret));
-                return this;
+                    return getObj(arg);
+                })));
             },
             isInstanceof:function(Class){
                 var self=this,
@@ -87,13 +86,7 @@
             }
         }
 
-        if(parents.length){
-            ret._super=function(){
-                (parents[0].prototype._self||parents[0]).apply(this,arguments);
-            }
-        }
-
-        proxy.prototype=construct.fn=construct.prototype=extend.apply(null,map([{constructor:construct}].concat(args,ret).sort(sortFunc),getObj));
+        proxy.prototype=construct.fn=construct.prototype=ret.extend.apply(ret,args);
 
         construct.extend=function(){
             ret.extend.apply(this.fn,arguments);
@@ -162,10 +155,10 @@
             bf=typeof b=='function';
         return af==bf?0:af?-1:1;
     }
-    function getObj(arg,constructor,ret){
+    function getObj(arg){
         if(isft(arg)){
             noop.prototype=arg.prototype;
-            return extend(new noop,{constructor:constructor},ret);
+            return extend(new noop);
         }
         return arg;
     }
