@@ -53,7 +53,7 @@
 
 !function(ROOT,name,undefined){
     
-   ROOT[name]=function(){
+   var createClass=ROOT[name]=function(){
         var struct=arguments[0],
             args=[].slice.call(arguments,(isft(struct)&&!function(i){for(i in struct.prototype){return true}}()?1:(struct=noop,0))),
             parents=[];
@@ -89,8 +89,7 @@
         proxy.prototype=construct.fn=construct.prototype=ret.extend.apply(ret,args);
 
         construct.extend=function(){
-            ret.extend.apply(this.fn,arguments);
-            return construct;
+            return createClass.apply(null,[this].concat([].slice.call(arguments,0)));
         }
 
         return construct;
@@ -158,7 +157,7 @@
     function getObj(arg){
         if(isft(arg)){
             noop.prototype=arg.prototype;
-            return extend(new noop);
+            return new noop;
         }
         return arg;
     }
