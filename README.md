@@ -63,7 +63,7 @@ document.writeln(bus.status); //driving
 //扩展类或实例方法
 //CLASS.fn.extend 是扩展CLASS的原型方法
 //CLASS.extend 则是返回一个继承了CLASS类的子类
-Bike.extend({setColor:function(color){this.color=color;document.writeln(color);}}); //该例子添加了 setColor 方法到 Bike 类的原型
+Bike.fn.extend({setColor:function(color){this.color=color;document.writeln(color);}}); //该例子添加了 setColor 方法到 Bike 类的原型
 bike.extend({setName:function(name){this.name=name;document.writeln(name);}}); //该例子直接对bike对象添加了 setName 方法
 
 bike.setColor('white'); //white
