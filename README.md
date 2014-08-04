@@ -61,7 +61,9 @@ document.writeln(bus.status); //driving
 
 
 //扩展类或实例方法
-Bike.extend({setColor:function(color){this.color=color;document.writeln(color);}}); //该例子添加了 setColor 方法到 Bike 类的原型。也可以使用 Bike.fn._extend({});
+//CLASS.fn.extend 是扩展CLASS的原型方法
+//CLASS.extend 则是返回一个继承了CLASS类的子类
+Bike.extend({setColor:function(color){this.color=color;document.writeln(color);}}); //该例子添加了 setColor 方法到 Bike 类的原型
 bike.extend({setName:function(name){this.name=name;document.writeln(name);}}); //该例子直接对bike对象添加了 setName 方法
 
 bike.setColor('white'); //white
@@ -71,9 +73,9 @@ try{new Bike('又一辆自行车').setName('我的自行车');}catch(e){document
 
 
 //继承类
-NewClass=createClass();
-Bike.extend(NewClass); //继承NewClass类
-document.writeln(bike.isInstanceof(NewClass)) //true
+var SubBike=Bike.extend({}); //创建Bike的子类。等同于 var SubBike=createClass(Bike);
+var sb=new SubBike;
+document.writeln(sb.isInstanceof(Bike)) //true
 
 document.writeln(car1 instanceof Car) //true
 document.writeln(bike instanceof Bike) //true
