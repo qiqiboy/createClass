@@ -89,7 +89,7 @@
         proxy.prototype=construct.fn=construct.prototype=ret.extend.apply(ret,args);
 
         construct.extend=function(){
-            return createClass.apply(null,[this].concat([].slice.call(arguments,0)));
+            return createClass.apply(null,[].slice.call(arguments,0).concat(this));
         }
 
         return construct;
