@@ -13,8 +13,8 @@
  *          _super 调用该方法只会执行第一个出现的类的构造函数，即默认父类的构造函数
  *
  * @return {Class} 返回包装后的类体构造函数，每个返回的类原型中都内置了几个方法：
- *          @method _self 原始构造函数
- *          @method _super 调用父类构造函数，以继承其自身属性
+ *          @Function _self 原始构造函数
+ *          @method super 在子类构造函数或者方法中调用父类构造或方法
  *          @method extend 扩展类方法或者实例方法，继承类等
  *          @method isInstanceof 检测是否是某个类的实例，单继承时用原生的 instanceof 或者本方法都可以，
  *                               多继承情况下，必须用本方法才可以正确检测所有父类
@@ -34,7 +34,7 @@
  *
  *      //创建子类
  *      var Bike=createClass(function(name){
- *          this._super(name); //调用父类的构造函数，也可省略。this.name=name;
+ *          this.super(name); //调用父类的构造函数，也可省略。this.name=name;
  *      },{
  *          getDesc:function(){
  *              return '这是一辆'+this.getName();
@@ -55,48 +55,51 @@
 
     var createClass=ROOT[name]=function(){
         var struct=arguments[0],
-            args=[].slice.call(arguments,(isft(struct)&&!function(i){for(i in struct.prototype){return true}}()?1:(struct=noop,0))),
+            args=[].slice.call(arguments,(isFunction(struct)&&!function(i){for(i in struct.prototype){return true}}()?1:(struct=noop,0))),
             parents=[],
             ret={
-            _self:struct,
-            'super':function(){
-                var args=arguments,
-                    caller=args.callee.caller,
-                    p=parents[0],
-                    prop;
-                if(p){
-                    if(caller==struct){
-                        return (p.prototype._self||p).apply(this,args);
-                    }
-                    for(prop in this){
-                        if(caller===this[prop]&&p.prototype[prop]){
-                            return p.prototype[prop].apply(this,args);
+                _self:struct,
+                'super':function(){
+                    var args=arguments,
+                        caller=args.callee.caller,
+                        i,p,prop;
+                    if(p=parents[i=0]){
+                        if(caller==struct){
+                            return (p.prototype._self||p).apply(this,args);
+                        }
+                        for(prop in this){
+                            if(caller===this[prop]){
+                                do{
+                                    if(p.prototype[prop]){
+                                        return p.prototype[prop].apply(this,args);
+                                    }
+                                }while(p=parents[++i]);
+                            }
                         }
                     }
+                },
+                extend:function(){
+                    var self=this,
+                        base=this===ret?[]:[this];
+                    return extend.apply(null,base.concat(map([{constructor:construct}].concat([].slice.call(arguments,0),ret).sort(sortFunc),function(arg){
+                        isFunction(arg) && !self.isInstanceof(arg) && parents.push(arg);
+                        return getObj(arg);
+                    })));
+                },
+                isInstanceof:function(Class){
+                    var self=this,
+                        isto;
+                    return (this instanceof Class) || (function(){
+                        for(var i=0,j=parents.length;i<j;i++){
+                            isto=parents[i].prototype.isInstanceof;
+                            if(parents[i]===Class || isto && isto.call(self,Class)){
+                                return true;
+                            }
+                        }
+                        return false;
+                    })();
                 }
-            },
-            extend:function(){
-                var self=this,
-                    base=this===ret?[]:[this];
-                return extend.apply(null,base.concat(map([{constructor:construct}].concat([].slice.call(arguments,0),ret).sort(sortFunc),function(arg){
-                    isft(arg) && !self.isInstanceof(arg) && parents.push(arg);
-                    return getObj(arg);
-                })));
-            },
-            isInstanceof:function(Class){
-                var self=this,
-                    isto;
-                return (this instanceof Class) || (function(){
-                    for(var i=0,j=parents.length;i<j;i++){
-                        isto=parents[i].prototype.isInstanceof;
-                        if(parents[i]===Class || isto && isto.call(self,Class)){
-                            return true;
-                        }
-                    }
-                    return false;
-                })();
-            }
-        };
+            };
 
         proxy.prototype=construct.fn=construct.prototype=ret.extend.apply(ret,args);
 
@@ -113,7 +116,7 @@
             return new proxy(arguments);
         }
 
-    }
+    },toString=Object.prototype.toString;
 
     /**
      * 定义一些方法
@@ -138,7 +141,7 @@
     function extend(){
         var len=arguments.length-1,
             deep=arguments[len],
-            target=arguments[0]||{},
+            target=arguments[0],
             type=typeof target,
             i=1,options,key,src,clone;
         if(typeof deep!=='boolean'){
@@ -155,28 +158,32 @@
                     src=target[key];
                     copy=options[key];
                     if(target===copy)continue;
-                    target[key]=deep&&typeof copy=='object'&&copy!=null?extend(typeof src=='object'&&src!=null?src:({}).toString.call(copy)=='[object Array]'?[]:{},copy,deep):copy;
+                    target[key]=deep&&typeof copy=='object'&&copy!=null?extend(typeof src=='object'&&src!=null?src:toString.call(copy)=='[object Array]'?[]:{},copy,deep):copy;
                 }
             }
         }
 
         return target;
     }
+
     function sortFunc(a,b){
         var af=typeof a=='function',
             bf=typeof b=='function';
         return af==bf?0:af?-1:1;
     }
+
     function getObj(arg){
-        if(isft(arg)){
+        if(isFunction(arg)){
             noop.prototype=arg.prototype;
             return new noop;
         }
         return arg;
     }
-    function isft(n){
+
+    function isFunction(n){
         return typeof n=='function';
     }
+
     function noop(){}
 
 }(window,'createClass');

@@ -40,6 +40,9 @@ Drive.prototype.start=function(){
 Drive.prototype.stop=function(){
     this.status='stop';
 }
+Drive.prototype.getDesc=function(){
+	return 'stop';
+}
 
 var Bus=createClass(function(name,color){
         this.super(name);
@@ -49,13 +52,13 @@ var Bus=createClass(function(name,color){
         getColor:function(){
             return this.color;
         },
-        getDesc:function(){
-            return '这是一辆'+this.getColor()+'的'+this.getName();
-        }
+		getDesc:function(){
+			return '这是一辆行驶状态为"'+this.super()+'"的'+this.getColor()+'的'+this.getName();
+		}
     });
 var bus=new Bus('汽车','红色');
 document.writeln(bus.getColor()); //红色
-document.writeln(bus.getDesc()); //这是一辆红色的汽车
+document.writeln(bus.getDesc()); //这是一辆行驶状态为"stop"的红色的汽车
 
 bus.start();
 document.writeln(bus.status);
@@ -125,7 +128,7 @@ document.writeln(bus.isInstanceof(Drive)) //true
         this.status='stop';
     }
     Drive.prototype.getDesc=function(){
-        return this.status||'stop';
+        return 'stop';
     }
 
     var Bus=createClass(function(name,color){
