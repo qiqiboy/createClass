@@ -56,7 +56,7 @@
 
     var createClass=ROOT[name]=function(){
         var struct=arguments[0],
-            args=[].slice.call(arguments,(isFunction(struct)&&!function(i){for(i in struct.prototype){return true}}()?1:(struct=noop,0))),
+            args=[].slice.call(arguments,(isFunction(struct)&&!function(i){for(i in struct.prototype){return true}}()?1:(struct=noop(),0))),
             parents=[],
             ret={
                 _self:struct,
@@ -128,7 +128,7 @@
                 i=0,
                 p,ret;
 
-            this._super=noop;
+            this._super=noop();
             while(p=parents[i++]){
                 if(null==prop){
                     this._super=p.prototype._self||p;
@@ -174,8 +174,9 @@
 
     function getObj(arg){
         if(isFunction(arg)){
-            noop.prototype=arg.prototype;
-            return new noop;
+            var np=noop();
+            np.prototype=arg.prototype;
+            return new np;
         }
         return arg;
     }
@@ -184,6 +185,8 @@
         return typeof n=='function';
     }
 
-    function noop(){}
+    function noop(){
+        return new Function;
+    }
 
 }(window,'createClass');
