@@ -53,28 +53,40 @@
  */
 
 !function(ROOT,name,undefined){
+    "use strict"
 
     var createClass=ROOT[name]=function(){
         var struct=arguments[0],
             args=[].slice.call(arguments,(isFunction(struct)&&!function(i){for(i in struct.prototype){return true}}()?1:(struct=noop(),0))),
             parents=[],
             ret={
-                _self:struct,
+                _self:struct=wrap(struct,parents),
                 extend:function(){
                     var self=this,
                         base=this===ret?[]:[this];
-                    return extend.apply(null,base.concat(map([{constructor:construct}].concat([].slice.call(arguments,0),ret).sort(sortFunc),function(arg){
-                        var obj=getObj(arg),
-                            prop;
-                        isFunction(arg) && !self.isInstanceof(arg) && parents.push(arg);
-                        if(obj && typeof obj=='object'){
+                    return extend.apply(null,base.concat(map([{constructor:construct}].concat(map(arguments,function(arg){
+                        var prop,obj;
+
+                        if(isFunction(arg)){
+                            parents.push(obj=arg);
+                        }else if(arg && typeof arg=='object'){
+                            obj=arg;
                             for(prop in obj){
                                 if(obj.hasOwnProperty(prop)&&isFunction(obj[prop])){
                                     obj[prop]=wrap(obj[prop],parents,prop);
                                 }
                             }
-                            return obj;
                         }
+
+                        return obj;
+                    }),ret).sort(sortFunc),function(arg){
+                        var np;
+                        if(isFunction(arg)){
+                            np=noop();
+                            np.prototype=arg.prototype;
+                            arg=new np;
+                        }
+                        return arg;
                     })));
                 },
                 isInstanceof:function(Class){
@@ -91,8 +103,7 @@
                     })();
                 }
             };
-        
-        struct=wrap(struct,parents);
+
         proxy.prototype=construct.fn=construct.prototype=ret.extend.apply(ret,args);
 
         construct.extend=function(){
@@ -152,7 +163,7 @@
         var len=arguments.length,
             target=arguments[0],
             i=1,
-            options,key;
+            options,key,copy;
 
         for(;i<len;i++){
             if((options=arguments[i])!=null){
@@ -170,15 +181,6 @@
         var af=isFunction(a),
             bf=isFunction(b);
         return af==bf?0:af?-1:1;
-    }
-
-    function getObj(arg){
-        if(isFunction(arg)){
-            var np=noop();
-            np.prototype=arg.prototype;
-            return new np;
-        }
-        return arg;
     }
 
     function isFunction(n){
