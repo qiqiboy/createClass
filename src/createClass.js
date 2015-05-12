@@ -52,16 +52,28 @@
  */
 
 !function(ROOT,name,undefined){
-    
-   var createClass=ROOT[name]=function(){
+
+    var createClass=ROOT[name]=function(){
         var struct=arguments[0],
             args=[].slice.call(arguments,(isft(struct)&&!function(i){for(i in struct.prototype){return true}}()?1:(struct=noop,0))),
-            parents=[];
-
-        var ret={
+            parents=[],
+            ret={
             _self:struct,
-            _super:function(){
-                parents[0] && (parents[0].prototype._self||parents[0]).apply(this,arguments);
+            'super':function(){
+                var args=arguments,
+                    caller=args.callee.caller,
+                    p=parents[0],
+                    prop;
+                if(p){
+                    if(caller==struct){
+                        return (p.prototype._self||p).apply(this,args);
+                    }
+                    for(prop in this){
+                        if(caller===this[prop]&&p.prototype[prop]){
+                            return p.prototype[prop].apply(this,args);
+                        }
+                    }
+                }
             },
             extend:function(){
                 var self=this,
@@ -84,7 +96,7 @@
                     return false;
                 })();
             }
-        }
+        };
 
         proxy.prototype=construct.fn=construct.prototype=ret.extend.apply(ret,args);
 
@@ -100,20 +112,21 @@
         function construct(){
             return new proxy(arguments);
         }
-        
+
     }
 
     /**
      * 定义一些方法
      */ 
 
-    function map(arr,func){
+    function map(arr,iterate){
         for(var i=0,j=arr.length,ret=[],n;i<j;i++){
-			if(typeof (n=func(arr[i])) !== 'undefined')
-				ret.push(n);
-		}
-		return ret;
-	}
+            if(typeof (n=iterate(arr[i],i,arr))!=='undefined')
+                ret.push(n);
+        }
+        return ret;
+    }
+
     /**
      * 扩展合并数组或对象，拷贝对象（深拷贝 浅拷贝）
      * @param {object|array} target 要合并到的目标对象
@@ -122,33 +135,33 @@
      *
      * @return target
      */
-	function extend(){
-		var len=arguments.length-1,
-			deep=arguments[len],
-			target=arguments[0]||{},
-			type=typeof target,
-			i=1,options,key,src,clone;
-		if(typeof deep!=='boolean'){
-			deep=false;
-			len++;
-		}
-		if(type!='object' && type!='function'){
-			target={};
-		}
+    function extend(){
+        var len=arguments.length-1,
+            deep=arguments[len],
+            target=arguments[0]||{},
+            type=typeof target,
+            i=1,options,key,src,clone;
+        if(typeof deep!=='boolean'){
+            deep=false;
+            len++;
+        }
+        if(type!='object' && type!='function'){
+            target={};
+        }
 
-		for(;i<len;i++){
-			if((options=arguments[i])!=null){
-			    for(key in options){
-				    src=target[key];
-				    copy=options[key];
+        for(;i<len;i++){
+            if((options=arguments[i])!=null){
+                for(key in options){
+                    src=target[key];
+                    copy=options[key];
                     if(target===copy)continue;
-				    target[key]=deep&&typeof copy=='object'&&copy!=null?extend(typeof src=='object'&&src!=null?src:({}).toString.call(copy)=='[object Array]'?[]:{},copy,deep):copy;
-			    }
-		    }
-		}
+                    target[key]=deep&&typeof copy=='object'&&copy!=null?extend(typeof src=='object'&&src!=null?src:({}).toString.call(copy)=='[object Array]'?[]:{},copy,deep):copy;
+                }
+            }
+        }
 
-		return target;
-	}
+        return target;
+    }
     function sortFunc(a,b){
         var af=typeof a=='function',
             bf=typeof b=='function';
