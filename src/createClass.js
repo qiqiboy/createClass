@@ -69,7 +69,7 @@
                         isFunction(arg) && !self.isInstanceof(arg) && parents.push(arg);
                         if(obj && typeof obj=='object'){
                             for(prop in obj){
-                                if(isFunction(obj[prop])){
+                                if(obj.hasOwnProperty(prop)&&isFunction(obj[prop])){
                                     obj[prop]=wrap(obj[prop],parents,prop);
                                 }
                             }
