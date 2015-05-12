@@ -40,7 +40,7 @@ Drive.prototype.stop=function(){
     this.status='stop';
 }
 Drive.prototype.getDesc=function(){
-	return 'stop';
+	return this.status||'stop';
 }
 
 var Bus=createClass(function(name,color){
