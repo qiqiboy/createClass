@@ -104,11 +104,11 @@
         function proxy(args){
             struct.apply(this,args);
         }
+
         function construct(){
             return new proxy(arguments);
         }
-
-    },toString=Object.prototype.toString;
+    };
 
     /**
      * 定义一些方法
