@@ -70,7 +70,7 @@
                         if(obj && typeof obj=='object'){
                             for(prop in obj){
                                 if(isFunction(obj[prop])){
-                                    obj[prop]=w(obj[prop],prop);
+                                    obj[prop]=wrap(obj[prop],parents,prop);
                                 }
                             }
                             return obj;
@@ -100,10 +100,6 @@
         }
 
         return construct;
-
-        function w(fn,prop){
-            return wrap(fn,parents,prop);
-        }
 
         function proxy(args){
             struct.apply(this,args);
