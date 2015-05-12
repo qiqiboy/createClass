@@ -4,6 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>createClass</title>
 <script type="text/javascript" src="src/createClass.js"></script>
+<script type="text/javascript" src="klass.js"></script>
 </head>
 <body>
 <pre>
@@ -91,7 +92,39 @@ document.writeln(bus.isInstanceof(Car)) //true
 document.writeln(bus.isInstanceof(Bike)) //true
 document.writeln(bus.isInstanceof(Drive)) //true
 
-
+//_super测试
+<script type="text/javascript">
+	var Car=createClass(function(name){
+           this.name=name;
+		},{
+			getName:function(){
+				return this.name||'123';
+			},
+			getDesc:function(){
+				return '漂亮的'+this.getName();
+			}
+       });
+	var Bike=createClass(function(name){
+        this._super(name);
+    },{
+        getDesc:function(){
+            return '这是一辆'+this._super();
+        }
+    },Car);
+	var Bus=createClass(function(name,color){
+            this._super(name);
+            this.color=color;   
+        },Bike,{
+            getColor:function(){
+                return this.color;
+            },
+            getDesc:function(){
+                return this._super()+'，颜色为'+this.getColor();
+            }
+        });
+	var bus=new Bus('汽车','黄色');
+	document.writeln(bus.getDesc());//这是一辆漂亮的汽车，颜色为黄色
+</script>
 //下方是输出结果：
 <script type="text/javascript">
 	var Car=createClass(function(name){

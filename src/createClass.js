@@ -14,10 +14,11 @@
  *
  * @return {Class} 返回包装后的类体构造函数，每个返回的类原型中都内置了几个方法：
  *          @Function _self 原始构造函数
- *          @method _super 在子类构造函数或者方法中调用父类构造或方法
  *          @method extend 扩展类方法或者实例方法，继承类等
  *          @method isInstanceof 检测是否是某个类的实例，单继承时用原生的 instanceof 或者本方法都可以，
  *                               多继承情况下，必须用本方法才可以正确检测所有父类
+ *
+ * @method-extend _super 在构造函数或者类方法中，可以_super来调用父类的构造函数或类方法
  *
  * @example
  *      var Car=createClass(function(name){
@@ -59,31 +60,21 @@
             parents=[],
             ret={
                 _self:struct,
-                _super:function(){
-                    var args=arguments,
-                        caller=args.callee.caller,
-                        i,p,prop;
-                    if(p=parents[i=0]){
-                        if(caller==struct){
-                            return (p.prototype._self||p).apply(this,args);
-                        }
-                        for(prop in this){
-                            if(caller===this[prop]){
-                                do{
-                                    if(p.prototype[prop]){
-                                        return p.prototype[prop].apply(this,args);
-                                    }
-                                }while(p=parents[++i]);
-                            }
-                        }
-                    }
-                },
                 extend:function(){
                     var self=this,
                         base=this===ret?[]:[this];
                     return extend.apply(null,base.concat(map([{constructor:construct}].concat([].slice.call(arguments,0),ret).sort(sortFunc),function(arg){
+                        var obj=getObj(arg),
+                            prop;
                         isFunction(arg) && !self.isInstanceof(arg) && parents.push(arg);
-                        return getObj(arg);
+                        if(obj && typeof obj=='object'){
+                            for(prop in obj){
+                                if(isFunction(obj[prop])){
+                                    obj[prop]=w(obj[prop],prop);
+                                }
+                            }
+                            return obj;
+                        }
                     })));
                 },
                 isInstanceof:function(Class){
@@ -100,7 +91,8 @@
                     })();
                 }
             };
-
+        
+        struct=wrap(struct,parents);
         proxy.prototype=construct.fn=construct.prototype=ret.extend.apply(ret,args);
 
         construct.extend=function(){
@@ -108,6 +100,10 @@
         }
 
         return construct;
+
+        function w(fn,prop){
+            return wrap(fn,parents,prop);
+        }
 
         function proxy(args){
             struct.apply(this,args);
@@ -130,35 +126,43 @@
         return ret;
     }
 
-    /**
-     * 扩展合并数组或对象，拷贝对象（深拷贝 浅拷贝）
-     * @param {object|array} target 要合并到的目标对象
-     * @param [{object|array},...] 第二往后参数（最后一个参数如果为布尔型则不包含最后一个）为要合并的对象
-     * @param {boolean} deep 最末参数表示是否深度拷贝
-     *
-     * @return target
-     */
+    function wrap(method, parents, prop){
+        return function(){
+            var orig=this._super,
+                i=0,
+                p,ret;
+
+            this._super=noop;
+            while(p=parents[i++]){
+                if(null==prop){
+                    this._super=p.prototype._self||p;
+                    break;
+                }
+
+                if(isFunction(p.prototype[prop])){
+                    this._super=p.prototype[prop];
+                    break;
+                }
+            }
+
+            ret=method.apply(this,arguments);
+            this._super=orig;
+
+            return ret;
+        }
+    }
+
     function extend(){
-        var len=arguments.length-1,
-            deep=arguments[len],
+        var len=arguments.length,
             target=arguments[0],
-            type=typeof target,
-            i=1,options,key,src,clone;
-        if(typeof deep!=='boolean'){
-            deep=false;
-            len++;
-        }
-        if(type!='object' && type!='function'){
-            target={};
-        }
+            i=1,
+            options,key;
 
         for(;i<len;i++){
             if((options=arguments[i])!=null){
                 for(key in options){
-                    src=target[key];
-                    copy=options[key];
-                    if(target===copy)continue;
-                    target[key]=deep&&typeof copy=='object'&&copy!=null?extend(typeof src=='object'&&src!=null?src:toString.call(copy)=='[object Array]'?[]:{},copy,deep):copy;
+                    if(target===(copy=options[key]))continue;
+                    target[key]=copy;
                 }
             }
         }
@@ -167,8 +171,8 @@
     }
 
     function sortFunc(a,b){
-        var af=typeof a=='function',
-            bf=typeof b=='function';
+        var af=isFunction(a),
+            bf=isFunction(b);
         return af==bf?0:af?-1:1;
     }
 
