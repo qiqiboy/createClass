@@ -21,7 +21,7 @@ document.writeln(car2.getName()); //return '车辆2'
 
 //继承父类
 var Bike=createClass(function(name){
-    this.super(name); //调用父类的构造函数，也可省略。this.name=name;
+    this._super(name); //调用父类的构造函数，也可省略。this.name=name;
 },{
     getDesc:function(){
         return '这是一辆'+this.getName();
@@ -44,7 +44,7 @@ Drive.prototype.getDesc=function(){
 }
 
 var Bus=createClass(function(name,color){
-        this.super(name);
+        this._super(name);
         this.color=color;   
     },Drive,Bike,{			//继承Drive Bike两个类
         color:'black',
@@ -52,7 +52,7 @@ var Bus=createClass(function(name,color){
             return this.color;
         },
 		getDesc:function(){
-			return '这是一辆行驶状态为"'+this.super()+'"的'+this.getColor()+'的'+this.getName();
+			return '这是一辆行驶状态为"'+this._super()+'"的'+this.getColor()+'的'+this.getName();
 		}
     });
 var bus=new Bus('汽车','红色');

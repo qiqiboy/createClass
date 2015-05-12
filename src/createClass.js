@@ -14,7 +14,7 @@
  *
  * @return {Class} 返回包装后的类体构造函数，每个返回的类原型中都内置了几个方法：
  *          @Function _self 原始构造函数
- *          @method super 在子类构造函数或者方法中调用父类构造或方法
+ *          @method _super 在子类构造函数或者方法中调用父类构造或方法
  *          @method extend 扩展类方法或者实例方法，继承类等
  *          @method isInstanceof 检测是否是某个类的实例，单继承时用原生的 instanceof 或者本方法都可以，
  *                               多继承情况下，必须用本方法才可以正确检测所有父类
@@ -34,7 +34,7 @@
  *
  *      //创建子类
  *      var Bike=createClass(function(name){
- *          this.super(name); //调用父类的构造函数，也可省略。this.name=name;
+ *          this._super(name); //调用父类的构造函数，也可省略。this.name=name;
  *      },{
  *          getDesc:function(){
  *              return '这是一辆'+this.getName();
@@ -59,7 +59,7 @@
             parents=[],
             ret={
                 _self:struct,
-                'super':function(){
+                _super:function(){
                     var args=arguments,
                         caller=args.callee.caller,
                         i,p,prop;
