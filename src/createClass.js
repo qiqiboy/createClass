@@ -60,7 +60,7 @@
                         }
 
                         while(prop=dels.shift()){
-                            delete obj[ex];
+                            delete obj[prop];
                         }
 
                         return obj;
