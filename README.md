@@ -21,7 +21,7 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 }
 ````
 
-#例1 创建类
+###例1 创建类
 ```javascript
 	//创建Car类，拥有一个`name`属性和`getName`方法
 	var Car=createClass(function(name){
@@ -39,7 +39,7 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 	document.writeln(car1.getName());//奔驰
 ````
 
-#例2 创建并继承父类
+###例2 创建并继承父类
 ```javascript
 	//创建Bike类，继承Car的方法并添加一个新方法`getDesc`
 	var Bike=createClass(function(name){
@@ -56,7 +56,7 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 	document.writeln(bike.getDesc());//这是一辆自行车
 ````
 
-#例3 创建并继承多个父类
+###例3 创建并继承多个父类
 ```javascript
 	//使用普通方法创建一个Drive类（验证多继承同样适用于非使用createClass创建的类）
 	function Drive(name){this.name=name;}
@@ -89,7 +89,7 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 	document.writeln(bus.getName());//公共汽车
 ````
 
-#例4 扩展类、实例
+###例4 扩展类、实例
 ```javascript
 	//CLASS.fn.extend 是扩展CLASS的原型方法属性
 	//CLASS.extend 则是返回一个继承了CLASS类的子类
@@ -125,9 +125,9 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 	document.writeln(subbike.getDesc());//这是一辆漂亮的自行车，非常非常漂亮
 ````
 
-#例5 instanceof 检测
+###例5 instanceof 检测
 ```javascript
-	//instanceof 适用于单继承情况监测，对于多继承，请使用 isInstanceof 方法
+	//instanceof 适用于单继承情况检测，对于多继承，请使用 isInstanceof 方法
 	document.writeln(car1 instanceof Car) //true
 	document.writeln(bike instanceof Bike) //true
 	document.writeln(bike instanceof Car) //true
