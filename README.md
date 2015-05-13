@@ -25,7 +25,7 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 
 ###例1 创建类
 ```javascript
-	//创建Car类，拥有一个`name`属性和`getName`方法
+	//创建Car类，拥有一个 name 属性，两个公有 getName、getNameByPrivate 方法，两个私有 getName、getNamePrivate 方法，一个静态 getName 方法
 	var Car=createClass(function(name){
 			this.name=name;
 		},{
