@@ -1,63 +1,26 @@
-/**
+/*!
+ * createClass
  * @author qiqiboy
  * @github https://github.com/qiqiboy/createClass
- * @email imqiqiboy@gmail.com
- *
- * 创建类，返回类函数体。新建类实例时支持函数式和new实例化声明两种方式。
- * 实现原理是通过对象冒充，将实际的构造函数struct绑定到proxy实例中执行，以继承struct的属性和方法。
- * 支持继承，创建类时支持继承父类，支持一次继承多个父类。
- *
- * @params [{Function|Class|Object},...]
- *          构造函数或要继承的类或者原型对象，不限制个数，多个原型对象可以分开写。
- *          第一个参数如果是个函数，则当做默认构造函数。从第二个参数开始，出现的第一个类（函数）将则作为默认父类，其余类将会复制其属性和方法到原型，以实现多继承。
- *          _super 调用该方法只会执行第一个出现的类的构造函数，即默认父类的构造函数
- *
- * @return {Class} 返回包装后的类体构造函数，每个返回的类原型中都内置了几个方法：
- *          @Function _self 原始构造函数
- *          @method extend 扩展类方法或者实例方法，继承类等
- *          @method isInstanceof 检测是否是某个类的实例，单继承时用原生的 instanceof 或者本方法都可以，
- *                               多继承情况下，必须用本方法才可以正确检测所有父类
- *
- * @method-extend _super 在构造函数或者类方法中，可以_super来调用父类的构造函数或类方法
- *
- * @example
- *      var Car=createClass(function(name){
- *          this.name=name;
- *      },{
- *          getName:function(){
- *              return this.name;
- *          }
- *      });
- *      var car1=Car('车辆1');
- *      var car2=new Car('车辆2');
- *      car1.getName(); //return '车辆1'
- *      car2.getName(); //return '车辆2'
- *
- *      //创建子类
- *      var Bike=createClass(function(name){
- *          this._super(name); //调用父类的构造函数，也可省略。this.name=name;
- *      },{
- *          getDesc:function(){
- *              return '这是一辆'+this.getName();
- *          }
- *      },Car);
- *      var bike=Bike('自行车');
- *      bike.getName(); //return '自行车'
- *      bike.getDesc(); //return '这是一辆自行车'
- *
- *      car1 instanceof Car //true
- *      bike instanceof Bike //true
- *      bike instanceof Car //true
- *      bike.isInstanceof(Car) //true
- *
  */
 
 !function(ROOT,name,undefined){
     "use strict"
 
     var createClass=ROOT[name]=function(){
-        var struct=arguments[0],
-            args=[].slice.call(arguments,(isFunction(struct)&&!function(i){for(i in struct.prototype){return true}}()?1:(struct=noop(),0))),
+        var _struct,_parent,
+            args=map(arguments,function(arg){
+                if(isFunction(arg)){
+                    if(!function(i){for(i in arg.prototype){return true}}()){
+                        _struct=arg;
+                        return;
+                    }else if(!_parent){
+                        _parent=arg.prototype._self||arg;
+                    }
+                }
+                return arg;
+            }),
+            struct=_struct||_parent||noop(),
             parents=[],
             ret={
                 _self:struct=wrap(struct,parents),
@@ -72,7 +35,7 @@
                         }else if(arg && typeof arg=='object'){
                             obj=arg;
                             for(prop in obj){
-                                if(obj.hasOwnProperty(prop)&&isFunction(obj[prop])){
+                                if(obj.hasOwnProperty(prop)&&isFunction(obj[prop])&&prop!='constructor'){
                                     obj[prop]=wrap(obj[prop],parents,prop);
                                 }
                             }
