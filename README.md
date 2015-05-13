@@ -101,7 +101,7 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 			this.color=color;
 		}
 	}); 
-	//该例子给bike对象添加了 `setName` 私有方法
+	//该例子给bike对象添加了 `setName` 静态方法
 	bike.extend({
 		setName:function(name){
 			this.name=name;
