@@ -71,7 +71,7 @@
                             np.prototype=arg.prototype;
                             arg=new np;
                         }
-                        return arg;
+                        return arg||np;
                     })));
                 },
                 isInstanceof:function(Class){
