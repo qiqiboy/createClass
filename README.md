@@ -14,7 +14,9 @@ createClass
  *
  * @return Class 返回包装好的类，可以通过new来实例化类对象；也可以省略new操作符
  *
- * 
+ * 类方法支持 private、static 等关键词声明，参加下方例子。使用该关键词的方法在相关使用时会被优先调用：一个类声明了两个同名方法，一个使用了private关键声明为私有方法；则内部调用时会执行私有方法，外部调用会执行公有方法。
+ * 子类方法或者构造函数中可以使用 _super 来调用父类方法或者构造函数
+ * 具体使用请参加下方例子
  */
 function createClass(constructor,[prototype,...],[parentConstructor,...]){
 	//...
@@ -29,6 +31,18 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 		},{
 			getName:function(){
 				return this.name;
+			},
+			getNameByPrivate:function(){//内部调用将优先调用私有方法
+				return this.getName();
+			},
+			'private:getName':function(){
+				return '私有方法调用结果：'+this.getNamePrivate();
+			},
+			'private:getNamePrivate':function(){
+				return this.name;
+			},
+			'static:getName':function(){
+				return '静态调用';
 			}
 		});
 		
@@ -37,6 +51,9 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 	var car1=Car('奔驰'); //省略`new`操作符
 	document.writeln(car.getName());//宝马
 	document.writeln(car1.getName());//奔驰
+	try{car1.getNamePrivate()}catch(e){document.writeln(e.message);}//Cant not run a private method!
+	document.writeln(car.getNameByPrivate());//私有方法调用结果：宝马
+	document.writeln(Car.getName());//静态调用
 ````
 
 ###例2 创建并继承父类

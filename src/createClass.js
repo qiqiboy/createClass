@@ -5,7 +5,6 @@
  */
 
 !function(ROOT,name,undefined){
-    "use strict"
 
     var createClass=ROOT[name]=function(){
         var _struct,_parent,
@@ -21,22 +20,41 @@
                 return arg;
             }),
             struct=_struct||_parent||noop(),
-            parents=[],
+            PARENTS=[],
+            PRIVATES={},
+            ORIGIN={},
             ret={
-                _self:struct=wrap(struct,parents),
+                _self:struct=wrap(struct,PARENTS,PRIVATES,ORIGIN),
                 extend:function(){
                     var self=this,
                         base=this===ret?[]:[this];
                     return extend.apply(null,base.concat(map([{constructor:construct}].concat(map(arguments,function(arg){
-                        var prop,obj;
+                        var prop,_prop,obj,attrs,ex,method;
 
                         if(isFunction(arg)){
-                            parents.push(obj=arg);
+                            PARENTS.push(obj=arg);
                         }else if(arg && typeof arg=='object'){
                             obj=arg;
                             for(prop in obj){
-                                if(obj.hasOwnProperty(prop)&&isFunction(obj[prop])&&prop!='constructor'){
-                                    obj[prop]=wrap(obj[prop],parents,prop);
+                                if(obj.hasOwnProperty(prop)&&isFunction(method=obj[prop])&&prop!='constructor'){
+                                    _prop=prop;
+                                    attrs=prop.split(':');
+                                    if(attrs.length>1){
+                                        ex=attrs.shift();
+                                        _prop=attrs.join(':');
+                                    }
+
+                                    switch(ex){
+                                        case 'private':
+                                            delete obj[prop];
+                                            PRIVATES[_prop]=method;
+                                            break;
+                                        case 'static':
+                                            delete obj[prop];
+                                            construct[_prop]=method;
+                                            break;
+                                    }
+                                    obj[_prop]=wrap(ORIGIN[prop]=method,PARENTS,PRIVATES,ORIGIN,_prop);
                                 }
                             }
                         }
@@ -56,9 +74,9 @@
                     var self=this,
                         isto;
                     return (this instanceof Class) || (function(){
-                        for(var i=0,j=parents.length;i<j;i++){
-                            isto=parents[i].prototype.isInstanceof;
-                            if(parents[i]===Class || isto && isto.call(self,Class)){
+                        for(var i=0,j=PARENTS.length;i<j;i++){
+                            isto=PARENTS[i].prototype.isInstanceof;
+                            if(PARENTS[i]===Class || isto && isto.call(self,Class)){
                                 return true;
                             }
                         }
@@ -68,7 +86,6 @@
             };
 
         proxy.prototype=construct.fn=construct.prototype=ret.extend.apply(ret,args);
-
         construct.extend=function(){
             return createClass.apply(null,[].slice.call(arguments,0).concat(this));
         }
@@ -95,12 +112,31 @@
         }
         return ret;
     }
+    
+    function hasOwnMethod(obj,method){
+        var prop;
+        if(method){
+            for(prop in obj){
+                if(obj[prop]===method)
+                    return true;
+            }
+        }
+        return false;
+    }
 
-    function wrap(method, parents, prop){
-        return function(){
+    function wrap(method,parents,privates,origins,prop){
+        return function noname(){
             var orig=this._super,
                 i=0,
                 p,ret;
+
+            if(privates[prop]){
+                if(hasOwnMethod(origins,noname.caller)){
+                    method=privates[prop];
+                }else if(prop in origins){
+                    method=origins[prop];
+                }else throw new Error('Cant not run a private method!');
+            }
 
             this._super=noop();
             while(p=parents[i++]){
@@ -114,7 +150,7 @@
                     break;
                 }
             }
-
+            
             ret=method.apply(this,arguments);
             this._super=orig;
 

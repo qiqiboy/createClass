@@ -21,6 +21,18 @@ h3{
 		},{
 			getName:function(){
 				return this.name;
+			},
+			getNameByPrivate:function(){//内部调用将优先调用私有方法
+				return this.getName();
+			},
+			'private:getName':function(){
+				return '私有方法调用结果：'+this.getNamePrivate();
+			},
+			'private:getNamePrivate':function(){
+				return this.name;
+			},
+			'static:getName':function(){
+				return '静态调用';
 			}
 		});
 		
@@ -29,6 +41,9 @@ h3{
 	var car1=Car('奔驰'); //省略`new`操作符
 	document.writeln(car.getName());//宝马
 	document.writeln(car1.getName());//奔驰
+	try{car1.getNamePrivate()}catch(e){document.writeln(e.message);}//Cant not run a private method!
+	document.writeln(car.getNameByPrivate());//私有方法调用结果：宝马
+	document.writeln(Car.getName());//静态调用
 	
 	//创建Bike类，继承Car的方法并添加一个新方法`getDesc`
 	document.writeln('<h3>例子2：</h3>');
