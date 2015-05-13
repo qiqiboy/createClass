@@ -29,12 +29,12 @@
                     var self=this,
                         base=this===ret?[]:[this];
                     return extend.apply(null,base.concat(map([{constructor:construct}].concat(map(arguments,function(arg){
-                        var prop,_prop,obj,attrs,ex,method,dels=[];
+                        var prop,_prop,obj,_obj,attrs,ex,method,dels=[];
 
                         if(isFunction(arg)){
                             PARENTS.push(obj=arg);
                         }else if(arg && typeof arg=='object'){
-                            obj=arg;
+                            obj=arg; _obj={};
                             for(prop in obj){
                                 if(obj.hasOwnProperty(prop)&&isFunction(method=obj[prop])&&prop!='constructor'){
                                     _prop=prop;
@@ -42,7 +42,7 @@
                                     if(attrs.length>1){
                                         ex=attrs.shift();
                                         _prop=attrs.join(':');
-                                    }
+                                    }else ex='public';
 
                                     switch(ex){
                                         case 'private':
@@ -54,16 +54,16 @@
                                             construct[_prop]=method;
                                             continue;
                                     }
-                                    obj[_prop]=wrap(ORIGIN[prop]=method,PARENTS,PRIVATES,ORIGIN,_prop);
+                                    _obj[_prop]=wrap(ORIGIN[prop]=method,PARENTS,PRIVATES,ORIGIN,_prop);
                                 }
+                            }
+
+                            while(prop=dels.shift()){
+                                delete obj[prop];
                             }
                         }
 
-                        while(prop=dels.shift()){
-                            delete obj[prop];
-                        }
-
-                        return obj;
+                        return extend(obj,_obj);
                     }),ret).sort(sortFunc),function(arg){
                         var np;
                         if(isFunction(arg)){
