@@ -90,7 +90,11 @@ h3{
 		}
 	});
 	
-	var BikeSub=Bike.extend(); //等同于 createClass(Bike);
+	var BikeSub=Bike.extend({
+			getDesc:function(){
+				return this._super()+'，非常非常漂亮'
+			}
+		}); //等同于 createClass(Bike,{});
 	var subbike=new BikeSub('漂亮的自行车');
 	
 	bike.setColor('白色');

@@ -67,16 +67,16 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 		this.status='停止';
 	}
 	
-	//创建Bus类，继承Car、Drive的方法并添加一个新方法`getColor`
+	//创建Bus类，继承Car、Drive的方法并添加一个新方法getColor
 	var Bus=createClass(function(name,color){
-			`this._super(name);`//调用父类的构造方法
+			this._super(name);//调用父类的构造方法
 			this.color=color;
 		},{
 			getColor:function(){
 				return this.color;
 			},
-			getDesc:function(){//重写父类方法，并通过`_super`来调用父类方法
-				return `this._super()`+'，颜色是'+this.getColor();
+			getDesc:function(){//重写父类方法，并通过_super来调用父类方法
+				return this._super()+'，颜色是'+this.getColor();
 			}
 		},Drive,Bike);
 		
@@ -95,7 +95,7 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 	//CLASS.extend 则是返回一个继承了CLASS类的子类
 	//INSTANCE.extend 扩展实例的私有方法属性
 	
-	//该例子添加了 `setColor` 方法到 Bike 类的原型
+	//该例子添加了 setColor 方法到 Bike 类的原型
 	Bike.fn.extend({
 		setColor:function(color){
 			this.color=color;
@@ -108,7 +108,11 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 		}
 	});
 	
-	var BikeSub=Bike.extend(); //等同于 createClass(Bike);
+	var BikeSub=Bike.extend({
+			getDesc:function(){
+				return this._super()+'，非常非常漂亮'
+			}
+		}); //等同于 createClass(Bike,{});
 	var subbike=new BikeSub('漂亮的自行车');
 	
 	bike.setColor('白色');
@@ -118,11 +122,12 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 	new Bike('又一辆自行车').setColor('white'); //white 因为setColor是绑定到Bike的原型中的，所以所有基于Bike派生的实例都具有这个方法，下面的setName则不是，会报错
 	try{new Bike('又一辆自行车').setName('我的自行车');}catch(e){document.writeln(e.message);} //TypeError: undefined is not a function.  
 	
-	document.writeln(subbike.getDesc());//这是一辆漂亮的自行车
+	document.writeln(subbike.getDesc());//这是一辆漂亮的自行车，非常非常漂亮
 ````
 
 #例5 instanceof 检测
 ```javascript
+	//instanceof 适用于单继承情况监测，对于多继承，请使用 isInstanceof 方法
 	document.writeln(car1 instanceof Car) //true
 	document.writeln(bike instanceof Bike) //true
 	document.writeln(bike instanceof Car) //true
