@@ -93,7 +93,7 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 ```javascript
 	//CLASS.fn.extend 是扩展CLASS的原型方法属性
 	//CLASS.extend 则是返回一个继承了CLASS类的子类
-	//INSTANCE.extend 扩展实例的私有方法属性
+	//INSTANCE.extend 扩展实例的静态方法属性
 	
 	//该例子添加了 setColor 方法到 Bike 类的原型
 	Bike.fn.extend({
