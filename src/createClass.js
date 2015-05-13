@@ -29,7 +29,7 @@
                     var self=this,
                         base=this===ret?[]:[this];
                     return extend.apply(null,base.concat(map([{constructor:construct}].concat(map(arguments,function(arg){
-                        var prop,_prop,obj,attrs,ex,method;
+                        var prop,_prop,obj,attrs,ex,method,dels=[];
 
                         if(isFunction(arg)){
                             PARENTS.push(obj=arg);
@@ -46,17 +46,21 @@
 
                                     switch(ex){
                                         case 'private':
-                                            delete obj[prop];
+                                            dels.push(prop);
                                             PRIVATES[_prop]=method;
                                             break;
                                         case 'static':
-                                            delete obj[prop];
+                                            dels.push(prop);
                                             construct[_prop]=method;
-                                            break;
+                                            continue;
                                     }
                                     obj[_prop]=wrap(ORIGIN[prop]=method,PARENTS,PRIVATES,ORIGIN,_prop);
                                 }
                             }
+                        }
+
+                        while(prop=dels.shift()){
+                            delete obj[ex];
                         }
 
                         return obj;
@@ -133,9 +137,8 @@
             if(privates[prop]){
                 if(hasOwnMethod(origins,noname.caller)){
                     method=privates[prop];
-                }else if(prop in origins){
-                    method=origins[prop];
-                }else throw new Error('Cant not run a private method!');
+                }else if(method=origins[prop]){}
+                else throw new Error('Cant not run a private method!');
             }
 
             this._super=noop();
