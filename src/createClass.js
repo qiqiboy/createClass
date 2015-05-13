@@ -129,13 +129,13 @@
     }
 
     function wrap(method,parents,privates,origins,prop){
-        return function noname(){
+        return function(){
             var orig=this._super,
                 i=0,
                 p,ret;
 
             if(privates[prop]){
-                if(hasOwnMethod(origins,noname.caller)){
+                if(hasOwnMethod(origins,arguments.callee.caller)){
                     method=privates[prop];
                 }else if(isFunction(method=origins[prop]||(!origins['private:'+prop]&&this[prop]))){}
                 else throw new Error('Cant not run a private method!');
