@@ -49,11 +49,19 @@ function createClass(constructor,[prototype,...],[parentConstructor,...]){
 	//实例化
 	var car=new Car('宝马');
 	var car1=Car('奔驰'); //省略`new`操作符
+	
+	//下面的getName属于外部调用，会执行公有方法
 	document.writeln(car.getName());//宝马
 	document.writeln(car1.getName());//奔驰
-	try{car1.getNamePrivate()}catch(e){document.writeln(e.message);}//Cant not run a private method!
+	
+	//getNameByPrivate是公有方法，但是其内部调用了私有的getName方法，所有输出有所不同
 	document.writeln(car.getNameByPrivate());//私有方法调用结果：宝马
+	
+	//静态方法调用
 	document.writeln(Car.getName());//静态调用
+	
+	//下面调用会报错，因为私有方法不允许外部调用
+	try{car1.getNamePrivate()}catch(e){document.writeln(e.message);}//Cant not run a private method!
 ````
 
 ###例2 创建并继承父类
