@@ -137,7 +137,7 @@
             if(privates[prop]){
                 if(hasOwnMethod(origins,noname.caller)){
                     method=privates[prop];
-                }else if(method=origins[prop]){}
+                }else if(isFunction(method=origins[prop]||(!origins['private:'+prop]&&this[prop]))){}
                 else throw new Error('Cant not run a private method!');
             }
 
