@@ -16,7 +16,7 @@ createClass
  *
  * 类方法支持 private、static 等关键词声明，参加下方例子。使用该关键词的方法在相关使用时会被优先调用：一个类声明了两个同名方法，一个使用了private关键声明为私有方法；则内部调用时会执行私有方法，外部调用会执行公有方法。
  * 子类方法或者构造函数中可以使用 _super 来调用父类方法或者构造函数
- * 具体使用请参加下方例子
+ * 具体使用请参加下方例子（* 私有方法声明不支持ES5严格模式"use strict"，因为Function.caller无法获取。如果需要private，请确认该类在非严格模式上下文中定义）
  */
 function createClass(constructor,[prototype,...],[parentConstructor,...]){
 	//...
