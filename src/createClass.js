@@ -22,7 +22,7 @@
             struct=_struct||_parent||noop(),
             PARENTS=[],
             PRIVATES={},
-            ORIGIN={},
+            ORIGIN={_self_:struct},
             ret={
                 _self:struct=wrap(struct,PARENTS,PRIVATES,ORIGIN),
                 extend:function(){
