@@ -7,6 +7,10 @@
 !function(ROOT,name,undefined){
 
     var createClass=ROOT[name]=function(){
+        if(this instanceof createClass){
+            throw new TypeError(name+' is not a constructor');
+        }
+
         var _struct,_parent,
             args=map(arguments,function(arg){
                 if(isFunction(arg)){
@@ -110,7 +114,7 @@
 
     /**
      * 定义一些方法
-     */ 
+     */
 
     function map(arr,iterate){
         for(var i=0,j=arr.length,ret=[],n;i<j;i++){
