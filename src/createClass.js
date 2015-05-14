@@ -37,23 +37,26 @@
                             obj=arg; _obj={};
                             for(prop in obj){
                                 if(obj.hasOwnProperty(prop)&&isFunction(method=obj[prop])&&prop!='constructor'){
-                                    _prop=prop;
                                     attrs=prop.split(':');
                                     if(attrs.length>1){
                                         ex=attrs.shift();
                                         _prop=attrs.join(':');
-                                    }else ex='public';
 
-                                    switch(ex){
-                                        case 'private':
-                                            dels.push(prop);
-                                            PRIVATES[_prop]=method;
-                                            break;
-                                        case 'static':
-                                            dels.push(prop);
-                                            construct[_prop]=method;
-                                            continue;
+                                        switch(ex){
+                                            case 'private':
+                                                dels.push(prop);
+                                                PRIVATES[_prop]=method;
+                                                break;
+                                            case 'static':
+                                                dels.push(prop);
+                                                construct[_prop]=method;
+                                                continue;
+                                            default:_prop=prop;
+                                        }
+                                    }else{
+                                        _prop=prop;
                                     }
+
                                     _obj[_prop]=wrap(ORIGIN[prop]=method,PARENTS,PRIVATES,ORIGIN,_prop);
                                 }
                             }
