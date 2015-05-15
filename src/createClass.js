@@ -14,7 +14,7 @@
         var _struct,_parent,
             args=map(arguments,function(arg){
                 if(isFunction(arg)){
-                    if(!function(i){for(i in arg.prototype){return true}}()){
+                    if(!function(){for(var i in arg.prototype){return true}}()){
                         _struct=arg;
                         return;
                     }else if(!_parent){
