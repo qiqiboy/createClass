@@ -6,7 +6,7 @@
 
 !function(ROOT,name,undefined){
 
-    var createClass=ROOT[name]=function(){
+    var createClass=function(){
         if(this instanceof createClass){
             throw new TypeError(name+' is not a constructor');
         }
@@ -111,6 +111,12 @@
             return new proxy(arguments);
         }
     };
+
+    if(typeof define=='function' && define.amd){
+        define(name,function(){
+            return createClass;
+        });
+    }else ROOT[name]=createClass;
 
     /**
      * 定义一些方法
